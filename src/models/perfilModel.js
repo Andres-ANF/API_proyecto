@@ -10,8 +10,7 @@ const perfilSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true, // asegura que todos los correos estén en minúsculas
-      match: [/^\S+@\S+\.\S+$/, "Formato de correo inválido"], // validación simple de email
+      lowercase: true, //asegura que todos los correos estén en minúsculas
     },
     biografia: {
       type: String,
@@ -20,7 +19,7 @@ const perfilSchema = new mongoose.Schema(
     },
     fotoPerfil: {
       type: String,
-      default: "default.jpg", //  imagen por defecto
+      default: "default.jpg", //imagen por defecto
     },
     historialPublicaciones: {
       type: [String], // lista de títulos o IDs de artículos
