@@ -25,5 +25,14 @@ router.delete("/perfil/:id", (req, res) => {
     .then((data) => res.json({ message: "Perfil eliminado correctamente", data }))
     .catch((error) => res.status(400).json({ message: error.message }));
 });
+//Eliminar una publicación del historial
+router.patch("/perfil/:id/eliminar-publicacion", (req, res) => {
+  const { id } = req.params;
+  const { publicacion } = req.body;
+  perfilSchema
+    .updateOne({ _id: id }, { $pull: { historialPublicaciones: publicacion } })
+    .then((data) => res.json({ message: "Publicación eliminada del historial", data }))
+    .catch((error) => res.status(400).json({ message: error.message }));
+});
 
 module.exports = router;
