@@ -17,6 +17,18 @@ router.get("/perfil", (req, res) => {
     .then((data) => res.json(data))
     .catch((error) => res.status(500).json({ message: error.message }));
 });
+// Consultar un perfil por ID
+router.get("/perfil/:id", (req, res) => {
+  const { id } = req.params;
+  perfilSchema
+    .findById(id)
+    .then((data) => {
+      if (!data) return res.status(404).json({ message: "Perfil no encontrado" });
+      res.json(data);
+    })
+    .catch((error) => res.status(500).json({ message: error.message }));
+});
+
 //eliminar un perfil por ID
 router.delete("/perfil/:id", (req, res) => {
   const { id } = req.params;
