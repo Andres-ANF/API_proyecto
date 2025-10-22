@@ -28,6 +28,14 @@ router.get("/perfil/:id", (req, res) => {
     })
     .catch((error) => res.status(500).json({ message: error.message }));
 });
+// Editar-actualizar perfil completo
+router.put("/perfil/:id", (req, res) => {
+  const { id } = req.params;
+  perfilSchema
+    .updateOne({ _id: id }, { $set: req.body })
+    .then((data) => res.json({ message: "Perfil actualizado correctamente", data }))
+    .catch((error) => res.status(400).json({ message: error.message }));
+});
 
 //eliminar un perfil por ID
 router.delete("/perfil/:id", (req, res) => {
