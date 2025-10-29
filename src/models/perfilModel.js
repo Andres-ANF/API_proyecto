@@ -25,6 +25,14 @@ const perfilSchema = new mongoose.Schema(
       type: [String], // lista de títulos o IDs de artículos
       default: [],
     },
+
+     rolperfil: {
+      type: String,
+      enum: ["usuario", "administrador"], //Solo hay dos roles
+      default: "usuario", //por defecto
+      
+      
+    },
   },
   {
     timestamps: true, // crea campos "createdAt" y "updatedAt" que son para llevar el control de tiempo
