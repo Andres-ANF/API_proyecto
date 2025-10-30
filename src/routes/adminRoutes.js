@@ -3,7 +3,14 @@ const router = express.Router();
 const Perfil = require("../models/perfilModel");
 const verificarAdmin = require("../middlewares/verificarAdmin");
 
-//  Obtener todos los usuarios 
+router.use(verificarAdmin);
+
+
+/* =============================
+   RUTAS DE ADMINISTRADOR
+============================= */
+
+// Obtener todos los perfiles
 router.get("/admin/perfiles", (req, res) => {
   Perfil.find()
     .then((data) => res.json(data))
@@ -21,56 +28,95 @@ router.get("/admin/administradores", (req, res) => {
     );
 });
 
-// Consultar perfil por ID
-router.get("/perfil/:id", (req, res) => {
+// Buscar perfil por ID (para admin)
+router.get("/admin/perfil/:id", (req, res) => {
   const { id } = req.params;
+
   Perfil.findById(id)
     .then((data) => {
-      if (!data) return res.status(404).json({ message: "Perfil no encontrado" });
+      if (!data) {
+        return res.status(404).json({ message: "Perfil no encontrado" });
+      }
       res.json(data);
     })
-    .catch((error) => res.status(500).json({ message: error.message }));
+    .catch((error) =>
+      res.status(500).json({ message: "Error al buscar el perfil", error })
+    );
 });
 
-// Actualizar perfil
-router.put("/perfil/:id", (req, res) => {
+// Cambiar el rol de un usuario
+router.patch("/admin/cambiar-rol/:id", (req, res) => {
   const { id } = req.params;
-  Perfil.updateOne({ _id: id }, { $set: req.body })
-    .then((data) =>
-      res.json({ message: "Perfil actualizado correctamente", data })
-    )
-    .catch((error) => res.status(400).json({ message: error.message }));
+  const { nuevoRol } = req.body;
+
+  if (!["usuario", "administrador"].includes(nuevoRol)) {
+    return res.status(400).json({ message: "Rol no válido" });
+  }
+
+  Perfil.updateOne({ _id: id }, { $set: { rolperfil: nuevoRol } })
+    .then((data) => {
+      if (data.matchedCount === 0) {
+        return res.status(404).json({ message: "Perfil no encontrado" });
+      }
+      res.json({ message: `Rol actualizado a ${nuevoRol}`, data });
+    })
+    .catch((error) =>
+      res.status(400).json({ message: "Error al actualizar rol", error })
+    );
 });
 
-// Eliminar perfil
-router.delete("/perfil/:id", (req, res) => {
+
+
+// Eliminar cualquier perfil (usuario o admin)
+router.delete("/admin/eliminar-perfil/:id", (req, res) => {
   const { id } = req.params;
+
   Perfil.deleteOne({ _id: id })
-    .then((data) => res.json({ message: "Perfil eliminado correctamente", data }))
-    .catch((error) => res.status(400).json({ message: error.message }));
+    .then((data) => {
+      if (data.deletedCount === 0)
+        return res.status(404).json({ message: "Perfil no encontrado" });
+
+      res.json({ message: "Perfil eliminado correctamente", data });
+    })
+    .catch((error) =>
+      res.status(400).json({ message: "Error al eliminar perfil", error })
+    );
 });
 
-// Eliminar una publicación del historial
-router.patch("/perfil/:id/eliminar-publicacion", (req, res) => {
+// Agregar publicación a un usuario
+router.patch("/admin/agregar-publicacion/:id", (req, res) => {
   const { id } = req.params;
   const { publicacion } = req.body;
-  Perfil.updateOne({ _id: id }, { $pull: { historialPublicaciones: publicacion } })
-    .then((data) =>
-      res.json({ message: "Publicación eliminada del historial", data })
-    )
-    .catch((error) => res.status(400).json({ message: error.message }));
-});
 
-// Agregar una publicación al historial
-router.patch("/perfil/:id/agregar-publicacion", (req, res) => {
-  const { id } = req.params;
-  const { publicacion } = req.body;
+  if (!publicacion) {
+    return res.status(400).json({ message: "Debes enviar una publicación" });
+  }
+
   Perfil.updateOne({ _id: id }, { $push: { historialPublicaciones: publicacion } })
     .then((data) =>
-      res.json({ message: "Publicación agregada al historial", data })
+      res.json({ message: "Publicación agregada al historial del usuario", data })
     )
-    .catch((error) => res.status(400).json({ message: error.message }));
+    .catch((error) =>
+      res.status(400).json({ message: "Error al agregar publicación", error })
+    );
 });
 
+// Eliminar una publicación del historial de un usuario
+router.patch("/admin/eliminar-publicacion/:id", (req, res) => {
+  const { id } = req.params;
+  const { publicacion } = req.body;
+
+  if (!publicacion) {
+    return res.status(400).json({ message: "Debes especificar la publicación" });
+  }
+
+  Perfil.updateOne({ _id: id }, { $pull: { historialPublicaciones: publicacion } })
+    .then((data) =>
+      res.json({ message: "Publicación eliminada del historial del usuario", data })
+    )
+    .catch((error) =>
+      res.status(400).json({ message: "Error al eliminar publicación", error })
+    );
+});
 
 module.exports = router;
