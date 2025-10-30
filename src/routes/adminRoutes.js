@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Perfil = require("../models/perfilModel");
+const verificarAdmin = require("../middlewares/verificarAdmin");
 
 //  Obtener todos los usuarios 
 router.get("/admin/perfiles", (req, res) => {

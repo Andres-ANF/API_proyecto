@@ -4,6 +4,7 @@ const app = express();
 const port = 3000;
 const mongoose = require("mongoose");
 const perfilRoutes = require("./src/routes/perfilRoutes"); // Importa tus rutas
+const adminRoutes = require("./routes/adminRoutes");
 require("dotenv").config();
 
 // Permite leer datos enviados desde formularios o JSON
