@@ -12,6 +12,7 @@ app.use(parser.json());
 
 // Gestión de las rutas usando el middleware
 app.use("/api", perfilRoutes);
+app.use("/api", adminRoutes);
 
 // Verificar conexión a MongoDB
 console.log("MONGO_URI:", process.env.MONGO_URI);
