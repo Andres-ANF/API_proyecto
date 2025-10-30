@@ -49,4 +49,27 @@ router.delete("/perfil/:id", (req, res) => {
     .catch((error) => res.status(400).json({ message: error.message }));
 });
 
+// Eliminar una publicación del historial
+router.patch("/perfil/:id/eliminar-publicacion", (req, res) => {
+  const { id } = req.params;
+  const { publicacion } = req.body;
+  Perfil.updateOne({ _id: id }, { $pull: { historialPublicaciones: publicacion } })
+    .then((data) =>
+      res.json({ message: "Publicación eliminada del historial", data })
+    )
+    .catch((error) => res.status(400).json({ message: error.message }));
+});
+
+// Agregar una publicación al historial
+router.patch("/perfil/:id/agregar-publicacion", (req, res) => {
+  const { id } = req.params;
+  const { publicacion } = req.body;
+  Perfil.updateOne({ _id: id }, { $push: { historialPublicaciones: publicacion } })
+    .then((data) =>
+      res.json({ message: "Publicación agregada al historial", data })
+    )
+    .catch((error) => res.status(400).json({ message: error.message }));
+});
+
+
 module.exports = router;
