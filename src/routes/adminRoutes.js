@@ -58,10 +58,44 @@ router.patch("/admin/cambiar-rol/:id", (req, res) => {
       if (data.matchedCount === 0) {
         return res.status(404).json({ message: "Perfil no encontrado" });
       }
+      // Evitar que un administrador se degrade a sí mismo
+        if (req.body.nuevoRol === "usuario" && id === req.body.idAdmin) {
+        return res.status(403).json({ message: "No puedes cambiar tu propio rol." });
+        }
       res.json({ message: `Rol actualizado a ${nuevoRol}`, data });
     })
     .catch((error) =>
       res.status(400).json({ message: "Error al actualizar rol", error })
+    );
+});
+
+// Editar cualquier perfil incluido el propio.
+router.patch("/admin/editar-perfil/:id", (req, res) => {
+  const { id } = req.params;
+  const datosActualizados = req.body;
+
+  // Evitar que el admin cambie roles desde aquí
+  if (datosActualizados.rolperfil) {
+    return res.status(400).json({
+      message:
+        "No puedes cambiar el rol desde esta ruta. Usa /admin/cambiar-rol/:id",
+    });
+  }
+  // No permitir cambiar el _id
+  if (datosActualizados._id) delete datosActualizados._id;
+
+  Perfil.updateOne({ _id: id }, { $set: datosActualizados })
+    .then((data) => {
+      if (data.matchedCount === 0)
+        return res.status(404).json({ message: "Perfil no encontrado" });
+
+      res.json({
+        message: "Perfil actualizado correctamente por el administrador",
+        data,
+      });
+    })
+    .catch((error) =>
+      res.status(400).json({ message: "Error al actualizar perfil", error })
     );
 });
 
@@ -70,6 +104,14 @@ router.patch("/admin/cambiar-rol/:id", (req, res) => {
 // Eliminar cualquier perfil (usuario o admin)
 router.delete("/admin/eliminar-perfil/:id", (req, res) => {
   const { id } = req.params;
+    const { idAdmin } = req.body; // ID del admin que hace la solicitud
+
+    // No es posible eliminar su propia cuenta
+  if (id === idAdmin) {
+    return res.status(403).json({
+      message: "No puedes eliminar tu propia cuenta de administrador.",
+    });
+  }
 
   Perfil.deleteOne({ _id: id })
     .then((data) => {
@@ -83,21 +125,22 @@ router.delete("/admin/eliminar-perfil/:id", (req, res) => {
     );
 });
 
-// Agregar publicación a un usuario
-router.patch("/admin/agregar-publicacion/:id", (req, res) => {
+// Obtener todas las publicaciones de un usuario por ID
+router.get("/admin/publicaciones/:id", (req, res) => {
   const { id } = req.params;
-  const { publicacion } = req.body;
 
-  if (!publicacion) {
-    return res.status(400).json({ message: "Debes enviar una publicación" });
-  }
-
-  Perfil.updateOne({ _id: id }, { $push: { historialPublicaciones: publicacion } })
-    .then((data) =>
-      res.json({ message: "Publicación agregada al historial del usuario", data })
-    )
+  Perfil.findById(id)
+    .then((perfil) => {
+      if (!perfil) {
+        return res.status(404).json({ message: "Perfil no encontrado" });
+      }
+      res.json({
+        mensaje: `Historial de publicaciones de ${perfil.nombre}`,
+        publicaciones: perfil.historialPublicaciones,
+      });
+    })
     .catch((error) =>
-      res.status(400).json({ message: "Error al agregar publicación", error })
+      res.status(500).json({ message: "Error al obtener publicaciones", error })
     );
 });
 

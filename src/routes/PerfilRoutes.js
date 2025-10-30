@@ -28,11 +28,24 @@ router.get("/perfil/:id", (req, res) => {
     })
     .catch((error) => res.status(500).json({ message: error.message }));
 });
+
 // Editar-actualizar perfil completo
 router.put("/perfil/:id", (req, res) => {
   const { id } = req.params;
+   const datosActualizados = { ...req.body };
+
+   // Evitar que el usuario cambie su rol
+  if (datosActualizados.rolperfil) {
+    return res.status(403).json({
+      message: "No puedes cambiar tu rol de usuario.",
+    });
+  }
+
+   // Eliminar _id si viene en el body por error
+  delete datosActualizados._id;
+
   perfilSchema
-    .updateOne({ _id: id }, { $set: req.body })
+    .updateOne({ _id: id }, { $set: datosActualizados })
     .then((data) => res.json({ message: "Perfil actualizado correctamente", data }))
     .catch((error) => res.status(400).json({ message: error.message }));
 });
