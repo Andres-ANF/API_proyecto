@@ -1,13 +1,15 @@
 const parser = require("body-parser");
-const express = require("express");
+const express = require('express');
 const app = express();
 const port = 3000;
 const mongoose = require("mongoose");
-const perfilRoutes = require("./src/routes/PerfilRoutes"); // Importa rutas
+const perfilRoutes = require("./routes/PerfilRoutes"); // Importa rutas
 const adminRoutes = require("./routes/adminRoutes");
-const authRoutes = require("./routes/authRoutes");
+const authRoutes = require("./routes/authroutes");
+
+require('dotenv').config();
+
 app.use("/api/auth", authRoutes); //login / signup
-require("dotenv").config();
 
 // Permite leer datos enviados desde formularios o JSON
 app.use(parser.urlencoded({ extended: false }));
