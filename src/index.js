@@ -9,11 +9,13 @@ const authRoutes = require("./routes/authroutes");
 
 require('dotenv').config();
 
-app.use("/api/auth", authRoutes); //login / signup
+
 
 // Permite leer datos enviados desde formularios o JSON
 app.use(parser.urlencoded({ extended: false }));
 app.use(parser.json());
+
+app.use("/api/auth", authRoutes); //login / signup
 
 // Gestión de las rutas usando el middleware
 app.use("/api", perfilRoutes);

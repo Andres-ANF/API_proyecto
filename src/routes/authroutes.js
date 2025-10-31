@@ -60,3 +60,49 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ message: "Error al registrar usuario", error: error.message });
   }
 });
+
+//login
+router.post("/login", async (req, res) => {
+  try {
+    const { correo, password } = req.body;
+
+    if (!correo || !password) {
+      return res.status(400).json({ message: "Debes proporcionar correo y contraseña" });
+    }
+
+    // Buscar usuario
+    const perfil = await Perfil.findOne({ correo });
+    if (!perfil) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Comparar contraseña
+    const esValida = await bcrypt.compare(password, perfil.password);
+    if (!esValida) {
+      return res.status(401).json({ message: "Contraseña incorrecta" });
+    }
+
+    // Generar token JWT usando JWT_SECRET
+    const token = jwt.sign(
+      { id: perfil._id, rolperfil: perfil.rolperfil },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      message: "Inicio de sesión exitoso",
+      token,
+      user: {
+        id: perfil._id,
+        nombre: perfil.nombre,
+        correo: perfil.correo,
+        rolperfil: perfil.rolperfil,
+      },
+    });
+  } catch (error) {
+    console.error("Error en /login:", error);
+    res.status(500).json({ message: "Error al iniciar sesión", error: error.message });
+  }
+});
+
+module.exports = router;
