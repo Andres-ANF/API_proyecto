@@ -154,9 +154,12 @@ router.patch("/admin/eliminar-publicacion/:id", (req, res) => {
   }
 
   Perfil.updateOne({ _id: id }, { $pull: { historialPublicaciones: publicacion } })
-    .then((data) =>
+    .then((data) =>{
+              if (data.modifiedCount === 0) {
+        return res.status(404).json({ message: "No se encontró la publicación o el perfil" });
+      }
       res.json({ message: "Publicación eliminada del historial del usuario", data })
-    )
+    })
     .catch((error) =>
       res.status(400).json({ message: "Error al eliminar publicación", error })
     );

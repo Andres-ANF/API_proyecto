@@ -17,6 +17,10 @@ const perfilSchema = new mongoose.Schema(
       default: "Sin biografía",
       maxlength: 500, // límite de longitud opcional
     },
+      password: { //contraseña
+         type: String,
+         required: true, 
+    },
     fotoPerfil: {
       type: String,
       default: "default.jpg", //imagen por defecto
