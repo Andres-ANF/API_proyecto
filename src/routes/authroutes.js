@@ -42,7 +42,7 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign(
       { id: nuevoPerfil._id, rolperfil: nuevoPerfil.rolperfil },
       process.env.JWT_SECRET,
-      { expiresIn: "4h" }
+      { expiresIn: "200h" }
     );
 
     res.status(201).json({
@@ -86,7 +86,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { id: perfil._id, rolperfil: perfil.rolperfil },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: "200h" }
     );
 
     res.json({
