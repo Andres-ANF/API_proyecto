@@ -24,13 +24,6 @@ module.exports = async (req, res, next) => {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    // validar contraseña
-    if (req.body.password) {
-      const isMatch = await bcrypt.compare(req.body.password, perfil.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Contraseña incorrecta." });
-      }
-    }
 
     // Verificar que sea administrador
     if (perfil.rolperfil !== "administrador") {

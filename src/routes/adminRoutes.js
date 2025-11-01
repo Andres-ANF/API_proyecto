@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Perfil = require("../models/perfilModel");
-const verificarAdmin = require("../middlewares/verificarAdmin");
+const verificarAdmin = require("../middlewares/auth");
 
 router.use(verificarAdmin);
 
@@ -145,24 +145,44 @@ router.get("/admin/publicaciones/:id", (req, res) => {
 });
 
 // Eliminar una publicación del historial de un usuario
-router.patch("/admin/eliminar-publicacion/:id", (req, res) => {
-  const { id } = req.params;
-  const { publicacion } = req.body;
+router.patch("/admin/eliminar-publicacion/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { publicacion } = req.body;
 
-  if (!publicacion) {
-    return res.status(400).json({ message: "Debes especificar la publicación" });
-  }
+    if (!publicacion) {
+      return res.status(400).json({ message: "Debes especificar la publicación" });
+    }
 
-  Perfil.updateOne({ _id: id }, { $pull: { historialPublicaciones: publicacion } })
-    .then((data) =>{
-              if (data.modifiedCount === 0) {
-        return res.status(404).json({ message: "No se encontró la publicación o el perfil" });
-      }
-      res.json({ message: "Publicación eliminada del historial del usuario", data })
-    })
-    .catch((error) =>
-      res.status(400).json({ message: "Error al eliminar publicación", error })
+    // Buscar el perfil
+    const perfil = await Perfil.findById(id);
+    if (!perfil) {
+      return res.status(404).json({ message: "Perfil no encontrado" });
+    }
+
+    // Verificar si la publicación existe en el historial
+    const index = perfil.historialPublicaciones.findIndex(
+      (pub) => pub.trim().toLowerCase() === publicacion.trim().toLowerCase()
     );
-});
 
+    if (index === -1) {
+      return res
+        .status(404)
+        .json({ message: "La publicación no existe en el historial del usuario." });
+    }
+
+    // Eliminar la publicación
+    perfil.historialPublicaciones.splice(index, 1);
+    await perfil.save();
+
+    res.json({
+      message: `Publicación "${publicacion}" eliminada correctamente del historial.`,
+      historialActualizado: perfil.historialPublicaciones,
+    });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error al eliminar publicación", error: error.message });
+  }
+});
 module.exports = router;
