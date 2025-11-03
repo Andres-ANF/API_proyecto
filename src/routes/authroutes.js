@@ -2,10 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
 const Perfil = require("../models/perfilModel");
-
-dotenv.config({ path: require('path').resolve(__dirname, '../../.env') });
 
 //registro
 
@@ -37,6 +34,8 @@ router.post("/signup", async (req, res) => {
     });
 
     await nuevoPerfil.save();
+
+    console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
     // Crear token JWT_SECRET
     const token = jwt.sign(

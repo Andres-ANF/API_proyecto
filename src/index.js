@@ -1,3 +1,10 @@
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+
+console.log("🔑 JWT_SECRET cargado:", process.env.JWT_SECRET);
+console.log("🔑 API Key detectada:", process.env.OPENAI_API_KEY ? "Sí" : "No");
+console.log("MONGO_URI:", process.env.MONGO_URI);
+
 const parser = require("body-parser");
 const express = require('express');
 const app = express();
@@ -8,12 +15,6 @@ const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authroutes");
 const chatRoutes = require("./routes/ChatRoutes");
 const authMiddleware = require("./middlewares/auth");
-
-
-
-require('dotenv').config();
-
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 
 // Permite leer datos enviados desde formularios o JSON
@@ -28,7 +29,7 @@ app.use("/api", perfilRoutes);
 app.use("/api", adminRoutes);
 
 // Ruta para el chat de IA
-app.use("/api/chat", authMiddleware, chatRoutes); 
+app.use("/api/chat", chatRoutes); 
 // Verificar conexión a MongoDB
 console.log("MONGO_URI:", process.env.MONGO_URI);
 
