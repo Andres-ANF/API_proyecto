@@ -4,6 +4,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 console.log("🔑 JWT_SECRET cargado:", process.env.JWT_SECRET);
 console.log("🔑 API Key detectada:", process.env.OPENAI_API_KEY ? "Sí" : "No");
 console.log("MONGO_URI:", process.env.MONGO_URI);
+const postRoutes = require("./routes/PostRoutes");
 
 const parser = require("body-parser");
 const express = require('express');
@@ -30,6 +31,10 @@ app.use("/api", adminRoutes);
 
 // Ruta para el chat de IA
 app.use("/api/chat", chatRoutes); 
+
+// Rutas de publicaciones
+app.use("/api/posts", postRoutes);
+
 // Verificar conexión a MongoDB
 console.log("MONGO_URI:", process.env.MONGO_URI);
 
