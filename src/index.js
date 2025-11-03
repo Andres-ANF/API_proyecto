@@ -6,14 +6,20 @@ const mongoose = require("mongoose");
 const perfilRoutes = require("./routes/PerfilRoutes"); // Importa rutas
 const adminRoutes = require("./routes/adminRoutes");
 const authRoutes = require("./routes/authroutes");
+const chatRoutes = require("./routes/ChatRoutes");
+const authMiddleware = require("./middlewares/auth");
+
+
 
 require('dotenv').config();
 
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 
 // Permite leer datos enviados desde formularios o JSON
 app.use(parser.urlencoded({ extended: false }));
 app.use(parser.json());
+app.use(express.json());
 
 app.use("/api/auth", authRoutes); //login / signup
 
@@ -21,6 +27,8 @@ app.use("/api/auth", authRoutes); //login / signup
 app.use("/api", perfilRoutes);
 app.use("/api", adminRoutes);
 
+// Ruta para el chat de IA
+app.use("/api/chat", authMiddleware, chatRoutes); 
 // Verificar conexión a MongoDB
 console.log("MONGO_URI:", process.env.MONGO_URI);
 
